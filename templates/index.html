@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MedAI Nexus — Intelligent Healthcare Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  nav {
+    padding: 14px 18px;
+  }
+
+  .nav-logo {
+    font-size: 1rem;
+  }
+
+  .nav-cta {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+
+  #hero {
+    min-height: auto;
+    padding: 120px 20px 60px;
+    flex-direction: column;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  h1.hero-title {
+    font-size: 2.5rem;
+    line-height: 1.05;
+  }
+
+  .hero-sub {
+    font-size: 0.95rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+
+  .ticker {
+    margin-top: 70px !important;
+  }
+
+  .spec-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .diag-wrapper {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+
+  .ai-input {
+    width: 100%;
+  }
+
+  #diag-canvas {
+    width: 100%;
+    height: 330px;
+  }
+
+  #heart-section {
+    height: 420px;
+  }
+
+  .heart-title {
+    font-size: 1.8rem;
+  }
+
+  .heart-sub {
+    padding: 0 20px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+}
+
+:root{
+  --bg:#020810;--bg2:#040d1a;--surface:#071428;--surface2:#0a1f3d;
+  --gold:#c9a84c;--gold2:#f0d080;--gold3:#7a5c1e;
+  --teal:#00e5c8;--teal2:#00b8a0;--teal-dim:#003d36;
+  --rose:#ff4f7b;--rose-dim:#3d0019;
+  --blue:#3d8eff;--blue-dim:#0a1f4d;
+  --purple:#9b6dff;--purple-dim:#1e0d4d;
+  --text:#e8eef8;--text2:#8a9abb;--text3:#4a5a7a;
+  --border:#0f2040;
+  --glow-teal:0 0 30px rgba(0,229,200,0.3);
+  --glow-gold:0 0 30px rgba(201,168,76,0.3);
+  --glow-rose:0 0 30px rgba(255,79,123,0.3);
+  --radius:16px;--radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:default;}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:4px}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:linear-gradient(to bottom,rgba(2,8,16,0.95),transparent);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,0.08);}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;background:linear-gradient(135deg,var(--gold),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.02em;}
+.nav-logo span{font-weight:400;opacity:0.7}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:.85rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);text-decoration:none;transition:color .3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s;}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{padding:10px 24px;border-radius:40px;background:linear-gradient(135deg,var(--gold3),var(--gold));color:#000;font-size:.85rem;font-weight:700;letter-spacing:.05em;border:none;cursor:pointer;transition:transform .2s,box-shadow .3s;font-family:'DM Sans',sans-serif;}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:var(--glow-gold)}
+
+/* HERO */
+#hero{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:120px 48px 80px;overflow:hidden;}
+.hero-content{max-width:680px;position:relative;z-index:3;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:40px;border:1px solid rgba(0,229,200,0.3);background:rgba(0,229,200,0.05);color:var(--teal);font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px;animation:fadeSlideUp .8s ease both;}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1.hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.8rem,5vw,4.8rem);line-height:.95;letter-spacing:-.03em;margin-bottom:24px;animation:fadeSlideUp .8s .15s ease both;}
+.title-line1{display:block;color:var(--text)}
+.title-line2{display:block;background:linear-gradient(90deg,var(--gold) 0%,var(--gold2) 40%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-size:1.1rem;line-height:1.7;color:var(--text2);max-width:520px;margin-bottom:40px;font-weight:300;animation:fadeSlideUp .8s .3s ease both;}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;animation:fadeSlideUp .8s .45s ease both;}
+.btn-primary{padding:16px 36px;border-radius:50px;background:linear-gradient(135deg,var(--teal-dim),var(--teal2));border:1px solid rgba(0,229,200,0.4);color:#000;font-weight:700;font-size:.95rem;letter-spacing:.03em;cursor:pointer;transition:all .3s;font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--teal),var(--teal2));opacity:0;transition:opacity .3s;}
+.btn-primary:hover::before{opacity:1}
+.btn-primary:hover{box-shadow:var(--glow-teal);transform:translateY(-2px)}
+.btn-primary span{position:relative;z-index:1}
+.btn-secondary{padding:16px 36px;border-radius:50px;background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-weight:500;font-size:.95rem;cursor:pointer;transition:all .3s;font-family:'DM Sans',sans-serif;}
+.btn-secondary:hover{background:rgba(201,168,76,0.08);box-shadow:var(--glow-gold);transform:translateY(-2px);}
+.hero-stats{display:flex;gap:40px;margin-top:60px;padding-top:40px;border-top:1px solid rgba(255,255,255,0.06);animation:fadeSlideUp .8s .6s ease both;}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:.78rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+#hero-canvas{position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:700px;height:700px;z-index:1;pointer-events:none;}
+
+/* SECTIONS */
+section{position:relative;z-index:2;padding:100px 48px}
+.section-label{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--teal);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;opacity:.8;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px;}
+.section-sub{font-size:1rem;color:var(--text2);line-height:1.7;max-width:560px;font-weight:300;}
+
+/* SPECIALIZATIONS */
+#specializations{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+.spec-header{text-align:center;margin-bottom:64px}
+.spec-header .section-sub{margin:0 auto}
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1400px;margin:0 auto;}
+.spec-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(.25,.8,.25,1),box-shadow .4s,border-color .4s;cursor:pointer;}
+.spec-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.02));opacity:0;transition:opacity .4s;}
+.spec-card:hover{transform:translateY(-8px) scale(1.01)}
+.spec-card:hover::before{opacity:1}
+.spec-card.teal:hover{box-shadow:0 20px 60px rgba(0,229,200,0.15);border-color:rgba(0,229,200,0.3)}
+.spec-card.gold:hover{box-shadow:0 20px 60px rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.3)}
+.spec-card.rose:hover{box-shadow:0 20px 60px rgba(255,79,123,0.15);border-color:rgba(255,79,123,0.3)}
+.spec-card.blue:hover{box-shadow:0 20px 60px rgba(61,142,255,0.15);border-color:rgba(61,142,255,0.3)}
+.spec-card.purple:hover{box-shadow:0 20px 60px rgba(155,109,255,0.15);border-color:rgba(155,109,255,0.3)}
+.spec-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px;}
+.spec-card.teal .spec-icon{background:rgba(0,229,200,0.1);border:1px solid rgba(0,229,200,0.2)}
+.spec-card.gold .spec-icon{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2)}
+.spec-card.rose .spec-icon{background:rgba(255,79,123,0.1);border:1px solid rgba(255,79,123,0.2)}
+.spec-card.blue .spec-icon{background:rgba(61,142,255,0.1);border:1px solid rgba(61,142,255,0.2)}
+.spec-card.purple .spec-icon{background:rgba(155,109,255,0.1);border:1px solid rgba(155,109,255,0.2)}
+.spec-card h3{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:10px;letter-spacing:-.01em;}
+.spec-card p{font-size:.88rem;color:var(--text2);line-height:1.65;font-weight:300}
+.spec-tag{display:inline-block;margin-top:16px;padding:4px 12px;border-radius:40px;font-size:.72rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;}
+.spec-card.teal .spec-tag{background:rgba(0,229,200,0.1);color:var(--teal)}
+.spec-card.gold .spec-tag{background:rgba(201,168,76,0.1);color:var(--gold)}
+.spec-card.rose .spec-tag{background:rgba(255,79,123,0.1);color:var(--rose)}
+.spec-card.blue .spec-tag{background:rgba(61,142,255,0.1);color:var(--blue)}
+.spec-card.purple .spec-tag{background:rgba(155,109,255,0.1);color:var(--purple)}
+.spec-corner{position:absolute;bottom:0;right:0;width:80px;height:80px;opacity:0.06;font-size:4rem;display:flex;align-items:flex-end;justify-content:flex-end;padding-bottom:8px;padding-right:12px;}
+
+/* DIAGNOSIS */
+#diagnosis{background:var(--bg2)}
+.diag-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:1400px;margin:0 auto;}
+#diag-canvas{width:100%;height:480px;border-radius:var(--radius)}
+.ai-panel{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid rgba(0,229,200,0.15);border-radius:var(--radius);padding:28px;margin-top:32px;}
+.ai-panel-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.ai-dot{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);animation:pulse 1.5s infinite;}
+.ai-panel-title{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--teal);letter-spacing:.1em}
+.input-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.ai-input{flex:1;min-width:120px;padding:12px 16px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.85rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .3s;}
+.ai-input:focus{border-color:rgba(0,229,200,0.4)}
+.ai-input::placeholder{color:var(--text3)}
+.analyze-btn{width:100%;padding:14px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--teal-dim),rgba(0,229,200,0.2));border:1px solid rgba(0,229,200,0.3);color:var(--teal);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .3s;font-family:'DM Sans',sans-serif;letter-spacing:.05em;}
+.analyze-btn:hover{background:linear-gradient(135deg,rgba(0,229,200,0.2),rgba(0,229,200,0.3));box-shadow:var(--glow-teal)}
+#result-panel{margin-top:16px;padding:16px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.3);border:1px solid var(--border);min-height:60px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--teal);line-height:1.8;transition:all .3s;display:none;}
+
+/* HEART SECTION */
+#heart-section{padding:0;height:640px;position:relative;overflow:hidden;z-index:2;}
+#heart-canvas{position:absolute;inset:0;width:100%;height:100%}
+.heart-overlay{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:linear-gradient(to right,rgba(2,8,16,0.75),transparent 35%,transparent 65%,rgba(2,8,16,0.75));}
+.heart-title{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;text-align:center;line-height:1.1;letter-spacing:-.02em;background:linear-gradient(90deg,var(--rose),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.heart-sub{color:var(--text2);font-size:.95rem;margin-top:12px;text-align:center;max-width:400px;}
+.heart-pulse-label{margin-top:20px;display:flex;align-items:center;gap:10px;padding:10px 24px;border-radius:40px;border:1px solid rgba(255,79,123,0.3);background:rgba(255,79,123,0.07);color:var(--rose);font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.1em;}
+.heart-pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);box-shadow:0 0 10px var(--rose);animation:pulse 1s infinite;}
+
+/* METRICS */
+#metrics{background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.metrics-header{text-align:center;margin-bottom:64px}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1400px;margin:0 auto}
+.metric-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;}
+.metric-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.3)}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:0;transition:opacity .3s;}
+.metric-card:hover::after{opacity:1}
+.metric-value{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;line-height:1;margin-bottom:8px;}
+.metric-label{font-size:.8rem;color:var(--text2);letter-spacing:.08em;text-transform:uppercase}
+.metric-sub{font-size:.75rem;color:var(--text3);margin-top:6px}
+
+/* FEATURES */
+#features{background:var(--bg)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1400px;margin:0 auto;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.feat-item{padding:40px 32px;background:var(--surface);border:1px solid var(--border);transition:background .3s;position:relative;overflow:hidden;}
+.feat-item:hover{background:var(--surface2)}
+.feat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transform:scaleX(0);transition:transform .4s,opacity .4s;}
+.feat-item:hover::before{opacity:1;transform:scaleX(1)}
+.feat-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);letter-spacing:.1em;margin-bottom:20px;}
+.feat-icon{font-size:2rem;margin-bottom:16px}
+.feat-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:12px;letter-spacing:-.01em;}
+.feat-desc{font-size:.88rem;color:var(--text2);line-height:1.65;font-weight:300}
+
+/* PROCESS */
+#process{background:var(--bg2);overflow:hidden}
+.process-header{text-align:center;margin-bottom:80px}
+.timeline{position:relative;max-width:900px;margin:0 auto}
+.timeline::before{content:'';position:absolute;left:50%;transform:translateX(-50%);top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold3),var(--teal-dim),transparent);}
+.tl-item{display:flex;align-items:flex-start;gap:48px;margin-bottom:64px;position:relative;}
+.tl-item:nth-child(odd){flex-direction:row}
+.tl-item:nth-child(even){flex-direction:row-reverse}
+.tl-content{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;transition:border-color .3s,box-shadow .3s;}
+.tl-content:hover{border-color:rgba(201,168,76,0.3);box-shadow:var(--glow-gold)}
+.tl-center{position:absolute;left:50%;transform:translateX(-50%);width:48px;height:48px;border-radius:50%;background:var(--surface2);border:2px solid var(--gold3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;z-index:1;box-shadow:0 0 20px rgba(201,168,76,0.2);top:16px;}
+.tl-step{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.tl-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.tl-desc{font-size:.88rem;color:var(--text2);line-height:1.65;font-weight:300}
+.tl-space{flex:1}
+
+/* FOOTER */
+footer{background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:60px 48px 40px;position:relative;z-index:2;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--gold),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;}
+.footer-desc{font-size:.85rem;color:var(--text3);line-height:1.7;max-width:280px}
+.footer-col h4{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:20px;}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:10px}
+.footer-col a{font-size:.85rem;color:var(--text3);text-decoration:none;transition:color .2s}
+.footer-col a:hover{color:var(--teal)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(255,255,255,0.04);font-size:.78rem;color:var(--text3);}
+.footer-badges{display:flex;gap:12px}
+.badge{padding:4px 12px;border-radius:40px;border:1px solid var(--border);font-size:.7rem;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;color:var(--text3);}
+
+/* TICKER */
+.ticker{background:rgba(0,229,200,0.04);border-top:1px solid rgba(0,229,200,0.08);border-bottom:1px solid rgba(0,229,200,0.08);padding:14px 0;overflow:hidden;position:relative;z-index:2;}
+.ticker-inner{display:flex;animation:ticker-scroll 30s linear infinite;width:max-content;}
+.ticker-item{white-space:nowrap;padding:0 48px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text3);letter-spacing:.08em;}
+.ticker-item span{color:var(--teal);margin-right:8px}
+@keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.25,.8,.25,1),transform .8s cubic-bezier(.25,.8,.25,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:1024px){
+  #hero{padding:120px 24px 80px}#hero-canvas{display:none}
+  .diag-wrapper{grid-template-columns:1fr;gap:40px}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  nav{padding:20px 24px}.nav-links{display:none}
+}
+@media(max-width:640px){
+  section{padding:60px 24px}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .timeline::before{left:24px}
+  .tl-item,.tl-item:nth-child(even){flex-direction:column;padding-left:60px}
+  .tl-center{left:0;transform:none}.tl-space{display:none}
+  .footer-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">MedAI<span> Nexus</span></div>
+  <ul class="nav-links">
+    <li><a href="#specializations">Specializations</a></li>
+    <li><a href="#diagnosis">AI Diagnosis</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#process">Process</a></li>
+  </ul>
+  <button class="nav-cta" onclick="openAccessPopup()">
+  Get Early Access
+</button>
+</nav>
+
+<div class="ticker" style="margin-top:80px">
+  <div class="ticker-inner" id="ticker-inner"></div>
+</div>
+
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span>AI-Powered</span> Next-Gen Medical Intelligence</div>
+    <h1 class="hero-title">
+      <span class="title-line1">The Future of</span>
+      <span class="title-line2">Healthcare Is<br>Intelligent</span>
+    </h1>
+    <p class="hero-sub">Harnessing deep learning, real-time biosignal processing, and multi-modal AI to deliver precision diagnostics across 12+ medical specializations — faster, smarter, more accurate.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="scrollToAnalysis()">
+        <span>Start Free Analysis</span>
+      </button>
+      <button class="btn-secondary" onclick="openDemo()">
+          View Clinical Demo
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num" data-target="98.7" data-suffix="%">0</div><div class="stat-label">Accuracy Rate</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="2.4" data-suffix="s">0</div><div class="stat-label">Diagnosis Speed</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="12" data-suffix="+">0</div><div class="stat-label">Specializations</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="50" data-suffix="K+">0</div><div class="stat-label">Patients Served</div></div>
+    </div>
+  </div>
+  <canvas id="hero-canvas"></canvas>
+</section>
+
+<section id="specializations">
+  <div class="spec-header">
+    <div class="section-label">Medical Expertise</div>
+    <h2 class="section-title">12 Clinical Specializations</h2>
+    <p class="section-sub">From cardiac rhythm analysis to oncology screening — our AI covers the full spectrum of modern medicine.</p>
+  </div>
+  <div class="spec-grid" id="spec-grid"></div>
+</section>
+
+<section id="diagnosis">
+  <div class="diag-wrapper">
+    <div class="diag-left reveal">
+      <div class="section-label">Real-Time Engine</div>
+      <h2 class="section-title">AI-Powered<br>Instant Diagnosis</h2>
+      <p class="section-sub">Enter patient vitals and receive a multi-model AI risk assessment in seconds, powered by ensemble neural networks trained on 10M+ clinical records.</p>
+      <div class="ai-panel">
+        <div class="ai-panel-header">
+          <div class="ai-dot"></div>
+          <div class="ai-panel-title">// PATIENT RISK ANALYZER v2.4</div>
+        </div>
+        <div class="input-row">
+          <input class="ai-input" id="inp-age" placeholder="Age" type="number" min="1" max="120"/>
+          <input class="ai-input" id="inp-bp" placeholder="BP (systolic)" type="number"/>
+          <input class="ai-input" id="inp-glucose" placeholder="Glucose mg/dL" type="number"/>
+        </div>
+        <div class="input-row">
+          <input class="ai-input" id="inp-bmi" placeholder="BMI" type="number" step="0.1"/>
+          <input class="ai-input" id="inp-chol" placeholder="Cholesterol" type="number"/>
+          <select class="ai-input" id="inp-smoke" style="background:#000;cursor:pointer">
+            <option value="">Smoking status</option>
+            <option value="never">Never</option>
+            <option value="former">Former</option>
+            <option value="current">Current</option>
+          </select>
+        </div>
+        <button class="analyze-btn" onclick="runAnalysis()">⚡ RUN AI ANALYSIS</button>
+        <div id="result-panel"></div>
+      </div>
+    </div>
+    <div class="diag-right reveal">
+      <canvas id="diag-canvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- BEATING HEART SECTION -->
+<div id="heart-section">
+  <canvas id="heart-canvas"></canvas>
+  <div class="heart-overlay">
+    <div class="heart-title">Cardiac Intelligence<br>Engine</div>
+    <div class="heart-sub">Real-time 3D cardiac model with AI-driven rhythm analysis and anomaly detection</div>
+    <div class="heart-pulse-label"><div class="heart-pulse-dot"></div> LIVE CARDIAC MONITOR ACTIVE</div>
+  </div>
+</div>
+
+<section id="metrics">
+  <div class="metrics-header">
+    <div class="section-label">Performance</div>
+    <h2 class="section-title">Clinical-Grade Accuracy</h2>
+  </div>
+  <div class="metrics-grid" id="metrics-grid"></div>
+</section>
+
+<section id="features">
+  <div style="text-align:center;margin-bottom:64px">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-title">Built for Modern Medicine</h2>
+  </div>
+  <div class="feat-grid" id="feat-grid"></div>
+</section>
+
+<section id="process">
+  <div class="process-header">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">From Data to Diagnosis<br>in 4 Steps</h2>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">MedAI Nexus</div>
+      <p class="footer-desc">The most advanced AI healthcare platform, bringing clinical-grade intelligence to every provider and patient.</p>
+    </div>
+    <div class="footer-col"><h4>Platform</h4><ul><li><a href="#">Diagnostics</a></li><li><a href="#">Patient Portal</a></li><li><a href="#">Analytics</a></li><li><a href="#">API Access</a></li></ul></div>
+    <div class="footer-col"><h4>Specializations</h4><ul><li><a href="#">Cardiology</a></li><li><a href="#">Oncology</a></li><li><a href="#">Neurology</a></li><li><a href="#">Radiology</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">Research</a></li><li><a href="#">Clinical Trials</a></li><li><a href="#">Privacy</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 MedAI Nexus. All rights reserved.</span>
+    <div class="footer-badges"><span class="badge">HIPAA Compliant</span><span class="badge">FDA Class II</span><span class="badge">ISO 27001</span></div>
+  </div>
+</footer>
+
+<script>
+// ── TICKER ──
+const tickerItems=[['Cardiology AI','98.9% sensitivity on AF detection'],['Oncology Screen','Early-stage cancer detection rate +34%'],['Neural Network','10M+ clinical records trained'],['Radiology AI','CT scan analysis in 1.2 seconds'],['Diabetes Risk','HbA1c prediction model active'],['Dermatology','Skin lesion classifier v3.1'],['Genomics','BRCA mutation screening live'],['Mental Health','PHQ-9 digital biomarker engine']];
+const ti=document.getElementById('ticker-inner');
+[...tickerItems,...tickerItems].forEach(([k,v])=>{const d=document.createElement('div');d.className='ticker-item';d.innerHTML=`<span>${k} —</span>${v}`;ti.appendChild(d);});
+
+// ── SPECS ──
+const specs=[
+  {icon:'🫀',title:'Cardiology',desc:'Real-time ECG interpretation, arrhythmia detection, and 12-lead analysis with >99% sensitivity using deep convolutional networks.',tag:'AI-ECG',color:'teal'},
+  {icon:'🧠',title:'Neurology',desc:'Brain activity mapping, stroke risk stratification, epileptic event forecasting from EEG signals using transformer architectures.',tag:'Neural Scan',color:'purple'},
+  {icon:'🫁',title:'Pulmonology',desc:'CT lung nodule detection, COPD severity grading, and pulmonary fibrosis progression monitoring with 3D volumetric AI.',tag:'Lung Vision',color:'blue'},
+  {icon:'🔬',title:'Oncology',desc:'Multi-cancer early detection via liquid biopsy signal analysis and histopathology slide classification at pathologist level.',tag:'CancerScreen',color:'rose'},
+  {icon:'🩻',title:'Radiology',desc:'Full-body imaging AI for X-ray, MRI, and CT scans. Anomaly highlighting with confidence scoring and radiologist-grade reports.',tag:'ImagingAI',color:'gold'},
+  {icon:'🧬',title:'Genomics',desc:'Polygenic risk score computation, pharmacogenomics profiling, and rare disease identification from whole-genome sequencing.',tag:'GenomeMap',color:'teal'},
+  {icon:'💊',title:'Pharmacology',desc:'AI-driven drug-drug interaction alerts, personalized dosing recommendations, and adverse event prediction from patient profiles.',tag:'RxGuard',color:'gold'},
+  {icon:'🦷',title:'Dental & Oral',desc:'Automated periapical analysis, caries detection, and oral cancer screening from dental X-rays and intraoral camera feeds.',tag:'DentaVision',color:'blue'},
+  {icon:'👁️',title:'Ophthalmology',desc:'Diabetic retinopathy grading, glaucoma progression tracking, and macular degeneration staging from fundus photography.',tag:'RetinaAI',color:'purple'},
+  {icon:'🩸',title:'Hematology',desc:'Complete blood count anomaly detection, blood smear differential counting, and sickle cell disease monitoring via AI.',tag:'BloodScan',color:'rose'},
+  {icon:'🧪',title:'Endocrinology',desc:'Thyroid nodule risk stratification, diabetes complications prediction, and hormonal imbalance pattern recognition.',tag:'MetaboAI',color:'teal'},
+  {icon:'🏃',title:'Sports Medicine',desc:'Injury risk prediction, biomechanical analysis, recovery timeline modeling for elite athletes and rehabilitation patients.',tag:'AthletAI',color:'gold'},
+];
+const sg=document.getElementById('spec-grid');
+specs.forEach(s=>{sg.innerHTML+=`<div class="spec-card ${s.color} reveal"><div class="spec-icon">${s.icon}</div><h3>${s.title}</h3><p>${s.desc}</p><span class="spec-tag">${s.tag}</span><div class="spec-corner">${s.icon}</div></div>`;});
+
+// ── METRICS ──
+const metricsData=[
+  {val:'98.7%',label:'Diagnostic Accuracy',sub:'vs 86% industry avg',color:'var(--teal)'},
+  {val:'1.2s',label:'Analysis Speed',sub:'per imaging scan',color:'var(--gold)'},
+  {val:'10M+',label:'Training Records',sub:'de-identified clinical data',color:'var(--purple)'},
+  {val:'0.001%',label:'False Positive Rate',sub:'cardiac arrhythmia',color:'var(--rose)'},
+  {val:'99.4%',label:'Sensitivity',sub:'early cancer detection',color:'var(--teal)'},
+  {val:'50K+',label:'Active Patients',sub:'across 40 countries',color:'var(--gold)'},
+  {val:'HIPAA',label:'Compliance',sub:'SOC2 + ISO 27001',color:'var(--blue)'},
+  {val:'24/7',label:'AI Availability',sub:'zero scheduled downtime',color:'var(--purple)'},
+];
+const mg=document.getElementById('metrics-grid');
+metricsData.forEach(m=>{mg.innerHTML+=`<div class="metric-card reveal"><div class="metric-value" style="color:${m.color}">${m.val}</div><div class="metric-label">${m.label}</div><div class="metric-sub">${m.sub}</div></div>`;});
+
+// ── FEATURES ──
+const feats=[
+  {num:'01',icon:'🔐',title:'End-to-End Encryption',desc:'Military-grade AES-256 encryption for all patient data. HIPAA, GDPR, and HITECH compliant with zero-knowledge architecture.'},
+  {num:'02',icon:'⚡',title:'Real-Time Processing',desc:'Edge-deployed inference nodes deliver sub-second analysis results with 99.99% uptime SLA across global CDN.'},
+  {num:'03',icon:'🧩',title:'EHR Integration',desc:'Native connectors for Epic, Cerner, Allscripts, and 200+ hospital systems via HL7 FHIR R4 standard APIs.'},
+  {num:'04',icon:'📊',title:'Predictive Analytics',desc:'Longitudinal patient risk modeling with 5-year disease progression forecasting and early intervention triggers.'},
+  {num:'05',icon:'🤝',title:'Collaborative Review',desc:'Multi-specialist virtual tumor boards, shared annotation tools, and AI-assisted second opinion workflows.'},
+  {num:'06',icon:'🌐',title:'Multilingual Support',desc:'Clinical AI in 28 languages with culturally-calibrated diagnostic models for global healthcare equity.'},
+];
+const fg=document.getElementById('feat-grid');
+feats.forEach(f=>{fg.innerHTML+=`<div class="feat-item reveal"><div class="feat-num">${f.num}</div><div class="feat-icon">${f.icon}</div><div class="feat-title">${f.title}</div><div class="feat-desc">${f.desc}</div></div>`;});
+
+// ── TIMELINE ──
+const steps=[
+  {step:'Step 01',icon:'📥',title:'Data Ingestion & Preprocessing',desc:'Patient data enters via EHR, wearables, imaging systems, or manual entry. Our pipeline normalizes, de-identifies, and validates all inputs in real time.'},
+  {step:'Step 02',icon:'🧠',title:'Multi-Modal AI Analysis',desc:'Ensemble of 14 specialized neural networks analyze vitals, lab values, imaging, and history simultaneously for comprehensive assessment.'},
+  {step:'Step 03',icon:'📋',title:'Risk Stratification & Scoring',desc:'Unified risk scores with confidence intervals, differential diagnoses, and explainable AI decision paths are generated per clinical pathway.'},
+  {step:'Step 04',icon:'👨‍⚕️',title:'Clinician Review & Action',desc:'Physicians receive AI-assisted reports with recommended actions, referral pathways, and treatment protocol suggestions within their existing workflow.'},
+];
+const tl=document.getElementById('timeline');
+steps.forEach(s=>{tl.innerHTML+=`<div class="tl-item reveal"><div class="tl-content"><div class="tl-step">${s.step}</div><div class="tl-title">${s.title}</div><div class="tl-desc">${s.desc}</div></div><div class="tl-center">${s.icon}</div><div class="tl-space"></div></div>`;});
+
+// ── SCROLL REVEAL ──
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// ── COUNTERS ──
+const statObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const target=parseFloat(e.target.dataset.target);
+      const suffix=e.target.dataset.suffix||'';
+      const isFloat=target%1!==0;
+      let start=0;const dur=1800;const step=16;const inc=target/(dur/step);
+      const t=setInterval(()=>{start+=inc;if(start>=target){start=target;clearInterval(t);}e.target.textContent=(isFloat?start.toFixed(1):Math.floor(start))+suffix;},step);
+      statObs.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('.stat-num').forEach(el=>statObs.observe(el));
+
+// ── AI ANALYSIS ──
+function runAnalysis(){
+  const age=+document.getElementById('inp-age').value;
+  const bp=+document.getElementById('inp-bp').value;
+  const glucose=+document.getElementById('inp-glucose').value;
+  const bmi=+document.getElementById('inp-bmi').value;
+  const chol=+document.getElementById('inp-chol').value;
+  const smoke=document.getElementById('inp-smoke').value;
+  const r=document.getElementById('result-panel');
+  r.style.display='block';r.innerHTML='<span style="color:var(--teal)">// ANALYZING...</span>';
+  setTimeout(()=>{
+    const risks=[];
+    if(glucose>126||(bmi>30&&age>45))risks.push({d:'Diabetes',p:Math.min(95,40+(glucose>126?35:0)+(bmi>30?15:0)),c:'var(--gold)'});
+    if(bp>140||chol>240||smoke==='current')risks.push({d:'Heart Disease',p:Math.min(90,30+(bp>140?25:0)+(chol>240?20:0)+(smoke==='current'?20:0)),c:'var(--rose)'});
+    if(bmi>35||chol>200)risks.push({d:'Liver Disease',p:Math.min(70,20+(bmi>35?30:0)+(chol>200?15:0)),c:'var(--purple)'});
+    if(!risks.length)risks.push({d:'No Disease Detected',p:8,c:'var(--teal)'});
+    let html='<div style="margin-bottom:10px;color:var(--text2);font-size:.7rem">// RISK ASSESSMENT COMPLETE — '+new Date().toLocaleTimeString()+'</div>';
+    risks.forEach(rr=>{html+=`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:${rr.c}">${rr.d}</span><span style="color:var(--text2)">${rr.p}% risk</span></div><div style="height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden"><div style="height:100%;width:0%;background:${rr.c};border-radius:4px;transition:width 1s ease;box-shadow:0 0 8px ${rr.c}" class="risk-bar" data-w="${rr.p}%"></div></div></div>`;});
+    r.innerHTML=html;
+    setTimeout(()=>document.querySelectorAll('.risk-bar').forEach(b=>b.style.width=b.dataset.w),50);
+  },1200);
+}
+
+// ══════════════════════════════════════════════════
+// THREE.JS SCENES
+// ══════════════════════════════════════════════════
+
+// ── BG STARS ──
+(function bgScene(){
+  const canvas=document.getElementById('bg-canvas');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
+  renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
+  camera.position.z=5;
+  const geo=new THREE.BufferGeometry();
+  const N=2500;const pos=new Float32Array(N*3);const col=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*50;pos[i*3+1]=(Math.random()-.5)*50;pos[i*3+2]=(Math.random()-.5)*50;
+    const r=Math.random();
+    if(r<.33){col[i*3]=0;col[i*3+1]=.9;col[i*3+2]=.79}
+    else if(r<.66){col[i*3]=.79;col[i*3+1]=.66;col[i*3+2]=.3}
+    else{col[i*3]=.24;col[i*3+1]=.55;col[i*3+2]=1}
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:.055,vertexColors:true,transparent:true,opacity:.65})));
+  window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+  let t=0;(function loop(){requestAnimationFrame(loop);t+=.0002;scene.rotation.y=t;scene.rotation.x=t*.3;renderer.render(scene,camera);})();
+})();
+
+// ── REALISTIC DNA HELIX (Hero) ──
+(function dnaScene(){
+  const canvas=document.getElementById('hero-canvas');
+  if(!canvas)return;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.setSize(700,700);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(55,1,.1,100);
+  camera.position.set(0,0,10);
+
+  const dnaGroup=new THREE.Group();
+  scene.add(dnaGroup);
+
+  // ── Realistic backbone parameters ──
+  const TURNS=4;         // number of full turns
+  const RISE_PER_BP=0.34; // 0.34nm per base pair (scaled)
+  const BP_COUNT=40;     // total base pairs
+  const HELIX_RADIUS=1.1;
+  const BACKBONE_RADIUS=0.065;
+  const SUGAR_RADIUS=0.07;
+  const PHOSPHATE_RADIUS=0.08;
+
+  // Base pair colors (A-T: teal/gold, G-C: rose/purple)
+  const basePairColors=[
+    {a:0x00e5c8,b:0xc9a84c}, // A-T
+    {a:0xff4f7b,b:0x9b6dff}, // G-C
+  ];
+
+  // Phosphate-sugar backbone strand points
+  const strand1Pts=[];
+  const strand2Pts=[];
+  for(let i=0;i<BP_COUNT+1;i++){
+    const t=i/BP_COUNT;
+    const angle=t*Math.PI*2*TURNS;
+    const y=(t-.5)*BP_COUNT*RISE_PER_BP*0.9;
+    strand1Pts.push(new THREE.Vector3(
+      Math.cos(angle)*HELIX_RADIUS,y,Math.sin(angle)*HELIX_RADIUS));
+    strand2Pts.push(new THREE.Vector3(
+      Math.cos(angle+Math.PI)*HELIX_RADIUS,y,Math.sin(angle+Math.PI)*HELIX_RADIUS));
+  }
+
+  // Smooth tube backbones with MeshStandardMaterial for realism
+  const mkBackbone=(pts,color)=>{
+    const curve=new THREE.CatmullRomCurve3(pts);
+    const geo=new THREE.TubeGeometry(curve,400,BACKBONE_RADIUS,12,false);
+    const mat=new THREE.MeshStandardMaterial({
+      color,roughness:0.25,metalness:0.6,
+      emissive:color,emissiveIntensity:0.15,
+    });
+    const m=new THREE.Mesh(geo,mat);m.castShadow=true;return m;
+  };
+  dnaGroup.add(mkBackbone(strand1Pts,0x00e5c8));
+  dnaGroup.add(mkBackbone(strand2Pts,0xc9a84c));
+
+  // ── Base pair rungs with realistic geometry ──
+  // Each rung: two half-cylinders (sugar-phosphate connection) + central base pair
+  for(let i=0;i<BP_COUNT;i++){
+    const t=i/BP_COUNT;
+    const angle=t*Math.PI*2*TURNS;
+    const y=(t-.5)*BP_COUNT*RISE_PER_BP*0.9;
+
+    const p1=new THREE.Vector3(Math.cos(angle)*HELIX_RADIUS,y,Math.sin(angle)*HELIX_RADIUS);
+    const p2=new THREE.Vector3(Math.cos(angle+Math.PI)*HELIX_RADIUS,y,Math.sin(angle+Math.PI)*HELIX_RADIUS);
+    const mid=new THREE.Vector3().addVectors(p1,p2).multiplyScalar(0.5);
+    const dir=new THREE.Vector3().subVectors(p2,p1);
+    const len=dir.length();
+    const pairType=i%2; // alternating base pairs
+
+    // Rung cylinder (hydrogen bond / base pair connection)
+    const rungGeo=new THREE.CylinderGeometry(0.028,0.028,len*0.7,10);
+    const rungMat=new THREE.MeshStandardMaterial({
+      color:basePairColors[pairType].a,roughness:.4,metalness:.3,
+      emissive:basePairColors[pairType].a,emissiveIntensity:.12,
+      transparent:true,opacity:.85
+    });
+    const rung=new THREE.Mesh(rungGeo,rungMat);
+    rung.position.copy(mid);
+    rung.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+    dnaGroup.add(rung);
+
+    // Sugar nodes on each strand
+    const addSugar=(pos,color)=>{
+      const geo=new THREE.SphereGeometry(SUGAR_RADIUS,14,14);
+      const mat=new THREE.MeshStandardMaterial({color,roughness:.2,metalness:.7,emissive:color,emissiveIntensity:.25});
+      const m=new THREE.Mesh(geo,mat);m.position.copy(pos);m.castShadow=true;dnaGroup.add(m);
+    };
+    addSugar(p1,0x00e5c8);
+    addSugar(p2,0xc9a84c);
+
+    // Phosphate nodes (slightly larger, different color)
+    if(i%2===0){
+      const phos1=new THREE.Vector3().lerpVectors(p1,strand1Pts[i+1]||p1,.5);
+      const phos2=new THREE.Vector3().lerpVectors(p2,strand2Pts[i+1]||p2,.5);
+      const addPhospho=(pos)=>{
+        const geo=new THREE.SphereGeometry(PHOSPHATE_RADIUS,12,12);
+        const mat=new THREE.MeshStandardMaterial({color:0x3d8eff,roughness:.15,metalness:.85,emissive:0x3d8eff,emissiveIntensity:.2});
+        const m=new THREE.Mesh(geo,mat);m.position.copy(pos);dnaGroup.add(m);
+      };
+      addPhospho(phos1);addPhospho(phos2);
+    }
+
+    // Base pair labels (tiny colored quads at center)
+    const baseGeo=new THREE.BoxGeometry(.18,.06,.06);
+    const baseMat=new THREE.MeshStandardMaterial({color:basePairColors[pairType].b,roughness:.5,metalness:.2,emissive:basePairColors[pairType].b,emissiveIntensity:.3,transparent:true,opacity:.7});
+    const baseMesh=new THREE.Mesh(baseGeo,baseMat);
+    baseMesh.position.copy(mid);
+    baseMesh.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),dir.normalize());
+    dnaGroup.add(baseMesh);
+  }
+
+  // Ambient particles around DNA
+  const pGeo=new THREE.BufferGeometry();
+  const pCount=300;const pPos=new Float32Array(pCount*3);
+  for(let i=0;i<pCount;i++){
+    const a=Math.random()*Math.PI*2;const r=1.5+Math.random()*1.5;
+    pPos[i*3]=Math.cos(a)*r;pPos[i*3+1]=(Math.random()-.5)*8;pPos[i*3+2]=Math.sin(a)*r;
+  }
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+  dnaGroup.add(new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x00e5c8,size:.04,transparent:true,opacity:.5})));
+
+  // Lighting — key + rim + fill for depth
+  scene.add(new THREE.AmbientLight(0x0a1a2e,1.2));
+  const keyLight=new THREE.DirectionalLight(0xffffff,2.5);
+  keyLight.position.set(5,8,5);keyLight.castShadow=true;scene.add(keyLight);
+  const rimLight=new THREE.PointLight(0x00e5c8,3,15);rimLight.position.set(-4,2,3);scene.add(rimLight);
+  const fillLight=new THREE.PointLight(0xc9a84c,2,12);fillLight.position.set(3,-3,4);scene.add(fillLight);
+  const backLight=new THREE.PointLight(0xff4f7b,1.5,10);backLight.position.set(0,0,-5);scene.add(backLight);
+
+  let t=0;
+  (function loop(){requestAnimationFrame(loop);t+=.006;
+    dnaGroup.rotation.y=t*.35;
+    renderer.render(scene,camera);
+  })();
+})();
+
+// ── BRAIN NEURAL NET (Diagnosis) ──
+(function diagScene(){
+  const canvas=document.getElementById('diag-canvas');
+  if(!canvas)return;
+  const W=canvas.offsetWidth||480,H=480;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(60,W/H,.1,100);
+  camera.position.set(0,0,9);
+  const group=new THREE.Group();scene.add(group);
+  const nodes=[];
+  const nodeColors=[0x00e5c8,0xc9a84c,0xff4f7b,0x3d8eff,0x9b6dff];
+  for(let i=0;i<60;i++){
+    const phi=Math.acos(-1+(2*i)/60);const theta=Math.sqrt(60*Math.PI)*phi;const r=3;
+    const geo=new THREE.SphereGeometry(.08+Math.random()*.1,12,12);
+    const mat=new THREE.MeshStandardMaterial({color:nodeColors[i%5],emissive:nodeColors[i%5],emissiveIntensity:.4,roughness:.3,metalness:.6,transparent:true,opacity:.9});
+    const m=new THREE.Mesh(geo,mat);
+    m.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi));
+    m.userData.orig=m.position.clone();
+    nodes.push(m);group.add(m);
+  }
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      if(nodes[i].position.distanceTo(nodes[j].position)<2.2&&Math.random()<.25){
+        const geo=new THREE.BufferGeometry().setFromPoints([nodes[i].position,nodes[j].position]);
+        group.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x00e5c8,transparent:true,opacity:.1})));
+      }
+    }
+  }
+  const coreGeo=new THREE.IcosahedronGeometry(.5,2);
+  const coreMat=new THREE.MeshStandardMaterial({color:0x00e5c8,emissive:0x00e5c8,emissiveIntensity:.4,wireframe:true,transparent:true,opacity:.6});
+  const core=new THREE.Mesh(coreGeo,coreMat);group.add(core);
+  scene.add(new THREE.AmbientLight(0x112233,1));
+  const l1=new THREE.PointLight(0x00e5c8,3,20);l1.position.set(5,5,5);scene.add(l1);
+  const l2=new THREE.PointLight(0xc9a84c,2,20);l2.position.set(-5,-3,3);scene.add(l2);
+  let t=0;
+  (function loop(){requestAnimationFrame(loop);t+=.005;
+    group.rotation.y=t*.3;group.rotation.x=Math.sin(t*.2)*.1;
+    core.rotation.y=t*2;core.rotation.x=t;
+    nodes.forEach((n,i)=>{n.position.x=n.userData.orig.x+Math.sin(t*1.2+i)*.07;n.position.y=n.userData.orig.y+Math.cos(t*.8+i)*.07;});
+    renderer.render(scene,camera);
+  })();
+})();
+
+// ── REALISTIC BEATING HEART ──
+(function heartScene(){
+  const canvas=document.getElementById('heart-canvas');
+  const W=innerWidth,H=640;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.setSize(W,H);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(55,W/H,.1,200);
+  camera.position.set(0,0,12);
+
+  const heartGroup=new THREE.Group();
+  scene.add(heartGroup);
+
+  // Build heart shape using parametric geometry
+  // Heart formula: x=(16sin³t), y=13cost-5cos2t-2cos3t-cos4t
+  function heartPoint(u,v){
+    // u: 0..2PI (longitude around heart), v: 0..PI (latitude)
+    const scale=1.0;
+    // Use heart curve extruded with radial profile
+    const t=u; // 0..2PI
+    // Heart cross-section radius at angle v
+    const cv=Math.sin(v); // 0..1..0 profile
+
+    // Heart 2D shape
+    const hx=16*Math.pow(Math.sin(t),3);
+    const hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+
+    // Extrude with thickness
+    const nx=-Math.sin(t)*Math.pow(Math.sin(t),2)*3; // crude normal X
+    const ny=-((-13*Math.sin(t)+10*Math.sin(2*t)+6*Math.sin(3*t)+4*Math.sin(4*t)));
+
+    const len=Math.sqrt(nx*nx+ny*ny)||1;
+    const thickness=cv*0.9*scale;
+
+    return new THREE.Vector3(
+      (hx/9.5+nx/len*thickness)*scale,
+      (hy/9.5+ny/len*thickness)*scale,
+      (Math.sin(v)*Math.cos(u*0.5)*0.7)*scale
+    );
+  }
+
+  // Build heart using LatheGeometry-inspired approach with merged segments
+  const SEGS_U=80,SEGS_V=30;
+  const heartPositions=[];
+  const heartNormals=[];
+  const heartIndices=[];
+  const heartUVs=[];
+
+  for(let iv=0;iv<=SEGS_V;iv++){
+    for(let iu=0;iu<=SEGS_U;iu++){
+      const u=iu/SEGS_U*Math.PI*2;
+      const v=iv/SEGS_V*Math.PI;
+      const p=heartPoint(u,v);
+      heartPositions.push(p.x,p.y,p.z);
+      heartUVs.push(iu/SEGS_U,iv/SEGS_V);
+    }
+  }
+
+  for(let iv=0;iv<SEGS_V;iv++){
+    for(let iu=0;iu<SEGS_U;iu++){
+      const a=iv*(SEGS_U+1)+iu;
+      const b=a+SEGS_U+1;
+      heartIndices.push(a,b,a+1);
+      heartIndices.push(b,b+1,a+1);
+    }
+  }
+
+  const heartGeo=new THREE.BufferGeometry();
+  heartGeo.setAttribute('position',new THREE.Float32BufferAttribute(heartPositions,3));
+  heartGeo.setAttribute('uv',new THREE.Float32BufferAttribute(heartUVs,2));
+  heartGeo.setIndex(heartIndices);
+  heartGeo.computeVertexNormals();
+
+  // Main heart mesh — deep red, glossy
+  const heartMat=new THREE.MeshStandardMaterial({
+    color:0xcc1133,roughness:.25,metalness:.1,
+    emissive:0x440010,emissiveIntensity:.8,
+  });
+  const heartMesh=new THREE.Mesh(heartGeo,heartMat);
+  heartMesh.castShadow=true;
+  heartMesh.receiveShadow=true;
+  heartGroup.add(heartMesh);
+
+  // Translucent outer glow shell
+  const glowMat=new THREE.MeshStandardMaterial({
+    color:0xff2244,roughness:.8,metalness:0,
+    emissive:0xff1133,emissiveIntensity:.35,
+    transparent:true,opacity:.18,side:THREE.BackSide
+  });
+  const glowMesh=new THREE.Mesh(heartGeo.clone(),glowMat);
+  glowMesh.scale.setScalar(1.08);
+  heartGroup.add(glowMesh);
+
+  // Surface veins — thin curved tubes on surface
+  const veinColors=[0xcc3355,0xaa2244,0xff4466];
+  for(let v=0;v<8;v++){
+    const startU=Math.random()*Math.PI*2;
+    const startV=Math.random()*Math.PI;
+    const veinPts=[];
+    for(let s=0;s<12;s++){
+      const pu=startU+s*.08*(Math.random()-.3);
+      const pv=startV+s*.04*(Math.random()-.3);
+      const pt=heartPoint(pu,Math.max(.1,Math.min(Math.PI-.1,pv)));
+      pt.multiplyScalar(1.02);
+      veinPts.push(pt);
+    }
+    if(veinPts.length>=2){
+      const curve=new THREE.CatmullRomCurve3(veinPts);
+      const vGeo=new THREE.TubeGeometry(curve,20,.012,6,false);
+      const vMat=new THREE.MeshStandardMaterial({color:veinColors[v%3],roughness:.6,metalness:.1,emissive:veinColors[v%3],emissiveIntensity:.2});
+      heartGroup.add(new THREE.Mesh(vGeo,vMat));
+    }
+  }
+
+  // Aorta tube at top
+  const aortaPts=[
+    new THREE.Vector3(.2,1.2,0),new THREE.Vector3(.4,1.8,.1),
+    new THREE.Vector3(.3,2.4,.05),new THREE.Vector3(.1,2.9,-.1),
+    new THREE.Vector3(-.3,3.2,-.2),
+  ];
+  const aortaCurve=new THREE.CatmullRomCurve3(aortaPts);
+  const aortaGeo=new THREE.TubeGeometry(aortaCurve,40,.14,10,false);
+  const aortaMat=new THREE.MeshStandardMaterial({color:0xdd2244,roughness:.3,metalness:.15,emissive:0x440010,emissiveIntensity:.5});
+  heartGroup.add(new THREE.Mesh(aortaGeo,aortaMat));
+
+  // Pulmonary artery
+  const pulmonaryPts=[
+    new THREE.Vector3(-.15,1.1,0.1),new THREE.Vector3(-.5,1.6,.2),
+    new THREE.Vector3(-.9,1.9,.1),new THREE.Vector3(-1.2,1.7,-.1),
+  ];
+  const pulCurve=new THREE.CatmullRomCurve3(pulmonaryPts);
+  const pulGeo=new THREE.TubeGeometry(pulCurve,30,.1,10,false);
+  heartGroup.add(new THREE.Mesh(pulGeo,new THREE.MeshStandardMaterial({color:0x3344cc,roughness:.3,metalness:.15,emissive:0x001133,emissiveIntensity:.4})));
+
+  // Coronary artery rings
+  for(let r=0;r<3;r++){
+    const ringPts=[];const ringR=0.15+r*.12;const ringY=0.2-r*.25;
+    for(let j=0;j<=24;j++){
+      const a=j/24*Math.PI*2;
+      ringPts.push(new THREE.Vector3(Math.cos(a)*ringR,ringY+Math.sin(a*2)*.08,Math.sin(a)*ringR));
+    }
+    const ringCurve=new THREE.CatmullRomCurve3(ringPts,true);
+    const ringGeo=new THREE.TubeGeometry(ringCurve,60,.018,8,true);
+    heartGroup.add(new THREE.Mesh(ringGeo,new THREE.MeshStandardMaterial({color:0xee3355,roughness:.4,metalness:.1,emissive:0x330011,emissiveIntensity:.3})));
+  }
+
+  // Floating ECG-style particles
+  const ecgGeo=new THREE.BufferGeometry();
+  const ecgN=500;const ecgPos=new Float32Array(ecgN*3);
+  for(let i=0;i<ecgN;i++){
+    const a=Math.random()*Math.PI*2;const r=3+Math.random()*4;
+    ecgPos[i*3]=Math.cos(a)*r;ecgPos[i*3+1]=(Math.random()-.5)*5;ecgPos[i*3+2]=Math.sin(a)*r;
+  }
+  ecgGeo.setAttribute('position',new THREE.BufferAttribute(ecgPos,3));
+  scene.add(new THREE.Points(ecgGeo,new THREE.PointsMaterial({color:0xff4f7b,size:.05,transparent:true,opacity:.4})));
+
+  // Lighting — dramatic medical-grade lighting
+  scene.add(new THREE.AmbientLight(0x1a0510,1.5));
+  const keyLight=new THREE.DirectionalLight(0xffffff,3);
+  keyLight.position.set(6,8,6);keyLight.castShadow=true;
+  keyLight.shadow.mapSize.set(1024,1024);scene.add(keyLight);
+  const fillLight=new THREE.PointLight(0xff2244,4,15);fillLight.position.set(-4,2,5);scene.add(fillLight);
+  const rimLight=new THREE.PointLight(0x3d8eff,2,12);rimLight.position.set(4,-3,-4);scene.add(rimLight);
+  const topLight=new THREE.PointLight(0xffffff,2,10);topLight.position.set(0,6,3);scene.add(topLight);
+  const glowLight=new THREE.PointLight(0xff1133,3,8);glowLight.position.set(0,0,5);scene.add(glowLight);
+
+  // Mouse parallax
+  let mx3=0,my3=0;
+  document.addEventListener('mousemove',e=>{mx3=(e.clientX/innerWidth-.5)*2;my3=(e.clientY/innerHeight-.5)*2;});
+
+  window.addEventListener('resize',()=>{renderer.setSize(innerWidth,640);camera.aspect=innerWidth/640;camera.updateProjectionMatrix();});
+
+  let t=0;
+  (function loop(){requestAnimationFrame(loop);t+=.012;
+
+    // Realistic heartbeat: systole (squeeze) + diastole (relax)
+    // BPM ~72 → period ~0.83s → at 60fps, ~50 frames/beat
+    const beatPhase=t*1.4; // speed
+    const beatCycle=beatPhase%(Math.PI*2);
+    // Systolic contraction: fast squeeze then slow relax
+    let beatScale;
+    if(beatCycle<0.4){beatScale=1-Math.sin(beatCycle/0.4*Math.PI)*0.08;} // fast squeeze
+    else{beatScale=0.92+((beatCycle-0.4)/(Math.PI*2-0.4))*0.08;} // slow relax
+
+    heartMesh.scale.setScalar(beatScale);
+    glowMesh.scale.setScalar(beatScale*1.08);
+
+    // Pulse the glow light with heartbeat
+    glowLight.intensity=3+Math.sin(beatCycle<.4?beatCycle/.4*Math.PI:0)*2;
+
+    // Slow auto-rotate + mouse parallax
+    heartGroup.rotation.y+=.004;
+    heartGroup.rotation.x+=(my3*.08-heartGroup.rotation.x)*.04;
+
+    // Aorta subtle pulse
+    const aortaScale=1+Math.sin(beatCycle<.4?beatCycle/.4*Math.PI:0)*.05;
+    heartGroup.children.forEach((c,i)=>{if(i>2&&i<6)c.scale.set(aortaScale,aortaScale,aortaScale);});
+
+    renderer.render(scene,camera);
+  })();
+})();
+
+// GET EARLY ACCESS
+function openAccessPopup(){
+  alert("Early Access Registration Open!");
+}
+
+// START FREE ANALYSIS
+function scrollToAnalysis(){
+  document.getElementById("diagnosis")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+}
+
+// VIEW CLINICAL DEMO
+function openDemo(){
+  alert("Clinical Demo Starting...");
+}
+
+</script>
+
+<div id="demoModal" class="demo-modal">
+  <div class="demo-content">
+
+    <span class="close-demo" onclick="closeDemo()">&times;</span>
+
+    <iframe
+      id="demoFrame"
+      width="100%"
+      height="500"
+      src=""
+      frameborder="0"
+      allowfullscreen>
+    </iframe>
+
+  </div>
+</div>
+
+</body>
+</html>
